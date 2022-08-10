@@ -1,5 +1,6 @@
 const mongoose = require('mongoose')
-const mongoURI = 'mongodb://localhost/'
+const config = require('config')
+const mongoURI = config.get('mongoURI')
 
 const connect = async () => {
     try {
@@ -11,7 +12,7 @@ const connect = async () => {
 
         console.error(err.message);
         process.exit(1);
-        
+
     }
 }
 module.exports = connect;
