@@ -24,19 +24,22 @@ const ContactState = (props) => {
         name:'ofi',
         email:'ofi@gmail.com',
         phone:'092312',
-        type:'personal'
+        type:'personal',
+        _id:'1'
       },
       {
         name:'KG',
         email:'kg@gmail.com',
         phone:'092312',
-        type:'personal'
+        type:'personal',
+        _id:'2'
       },
       {
         name:'Ketema',
         email:'ketema@gmail.com',
         phone:'092312',
-        type:'personal'
+        type:'personal',
+        _id:'3'
       }
 
     ]
@@ -45,7 +48,10 @@ const ContactState = (props) => {
   const [state, dispatch] = useReducer(contactReducer, initialState);
 
   return (
-    <ContactContext.Provider value={{ state: state, dispatch }}>
+    <ContactContext.Provider value={{
+       contacts: state.contacts
+      
+      }}>
       {props.children}
     </ContactContext.Provider>
   );
