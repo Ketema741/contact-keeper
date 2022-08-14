@@ -43,7 +43,6 @@ const ContactState = (props) => {
         type:'personal',
         _id:'3'
       }
-
     ],
     current:null
   };
@@ -72,13 +71,21 @@ const clearCurrent = ()=>{
   dispatch({ type:CLEAR_CURRENT })
 }
 
+
+// update contact
+const updateContact = (contact) => {
+  dispatch({type:UPDATE_CONTACT, payload:contact})
+  console.log(contact)
+}
   return (
     <ContactContext.Provider value={{
        contacts: state.contacts,
+       current: state.current,
        addContact,
        deleteContact,
        setCurrent,
-       clearCurrent
+       clearCurrent,
+       updateContact,
       
       }}>
       {props.children}
