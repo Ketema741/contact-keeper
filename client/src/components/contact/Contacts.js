@@ -5,11 +5,10 @@ import ContactItem from './ContactItem'
 const Contacts = () => {
   const contactContext = useContext(ContactContext)
   const { contacts } = contactContext;
-
   return (
     <Fragment>
       { contacts.map((contact) => (
-            <ContactItem contact={contact} />
+            <ContactItem key={contact._id} contact={contact} />
         ))}
     </Fragment>
   );
