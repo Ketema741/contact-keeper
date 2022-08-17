@@ -1,17 +1,21 @@
-import React, { Fragment } from 'react';
+import React, { useContext, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
+import AuthContext from '../../context/auth/authContext';
 
 const Navbar = ({ title, icon }) => {
+  const authContext = useContext(AuthContext)
 
-  // we just need the contact dispatch without state.
+  const { isAuthenticated, logout, user } = authContext
+  
 
   const onLogout = () => {
+    logout()
   };
 
   const authLinks = (
     <Fragment>
-      <li>Hello </li>
+      <li>Hello {user && user.name} </li>
       <li>
         <Link onClick={onLogout} to='/login'>
           <i className='fas fa-sign-out-alt' />{' '}
@@ -40,12 +44,7 @@ const Navbar = ({ title, icon }) => {
         </Link>
       </h1>
       <ul>
-        <li>
-          <Link to='/register'>Register</Link>
-        </li>
-        <li>
-          <Link to='/login'>Login</Link>
-        </li>
+        {isAuthenticated? authLinks : guestLinks}
       </ul>
     </div>
   );
