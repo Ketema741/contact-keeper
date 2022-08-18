@@ -1,8 +1,7 @@
-import React, { useReducer, useContext } from 'react';
+import React, { useReducer } from 'react';
 import axios from 'axios';
 import ContactContext from './contactContext';
 import contactReducer from './contactReducer';
-import { v4 } from "uuid"; 
 
 import {
   GET_CONTACTS,
@@ -21,73 +20,114 @@ import {
 
 const ContactState = (props) => {
   const initialState = {
-    contacts:[
-      {
-        name:'ofi',
-        email:'ofi@gmail.com',
-        phone:'092312',
-        type:'personal',
-        _id:'1'
-      },
-      {
-        name:'KG',
-        email:'kg@gmail.com',
-        phone:'092312',
-        type:'personal',
-        _id:'2'
-      },
-      {
-        name:'Ketema',
-        email:'ketema@gmail.com',
-        phone:'092312',
-        type:'personal',
-        _id:'3'
-      }
-    ],
+    contacts:null,
     current:null,
     filtered:null,
-  };
+  }; 
 
   const [state, dispatch] = useReducer(contactReducer, initialState);
   
+  
+  // Get Contacts
+ const getContacts = async () => {
+  try {
+    const res = await axios.get('api/contacts');
+
+    dispatch({
+      type: GET_CONTACTS,
+      payload: res.data
+    });
+    } catch (err) {
+    dispatch({
+      type: CONTACT_ERROR,
+      payload: err.response.msg
+    });
+    }
+  };
+
   // add contact
-  const addContact = (contact)=>{
-    contact._id = v4();
-    dispatch({ type:ADD_CONTACT, payload:contact })
+  const addContact = async(contact)=>{
+    const config = {
+      headers:{
+        "Content-Type":"application/json"
+      }
+    }
+
+    try {
+      const res = await axios.post('api/contacts', contact, config)
+      dispatch({ type:ADD_CONTACT, payload:res.data })
+    } catch(error) {
+      dispatch({ type:CONTACT_ERROR })
+    }
+  
   }
 
+
+  // clear contacts
+  const clearContacts = () => {
+    dispatch({ type:CLEAR_CONTACTS })
+  }
+
+    
   // Delete Contact
-  const deleteContact = (_id)=>{
-    dispatch({ type:DELETE_CONTACT, payload:_id })
+  const deleteContact = async (_id) => {
+
+    try {
+       await axios.delete(`api/contacts/${_id}`)
+       dispatch({ 
+        type:DELETE_CONTACT, 
+        payload:_id 
+      })
+    } catch(error) {
+      dispatch({ type:CONTACT_ERROR })
+    }
+    
+  }
+
+  // update contact
+  const updateContact = async (contact) => {
+    const config = {
+      headers:{
+        "Content-Type":"application/json"
+      }
+    }
+
+    try {
+      const res = await axios.put(`api/contacts/${contact._id}`, contact, config)
+      dispatch({
+        type:UPDATE_CONTACT, 
+        payload:res.data
+      })
+    } catch(error) {
+      dispatch({ type:CONTACT_ERROR })
+    }
+    
   }
 
 
-// set current
-const setCurrent = (contact)=>{
-  dispatch({ type:SET_CURRENT, payload:contact })
-}
+  // set current
+  const setCurrent = (contact) => {
+    dispatch({ type:SET_CURRENT, payload:contact })
+  }
 
-// set current
-const clearCurrent = ()=>{
-  dispatch({ type:CLEAR_CURRENT })
-}
-
-
-// update contact
-const updateContact = (contact) => {
-  dispatch({type:UPDATE_CONTACT, payload:contact})
-}
+  // set current
+  const clearCurrent = () => {
+    dispatch({ type:CLEAR_CURRENT })
+  }
 
 
-// filter contact
-const filterContacts = (text) => {
-  dispatch({type:FILTER_CONTACTS, payload:text})
-}
+  
 
-// clear filter
-const clearFilter = ()=>{
-  dispatch({ type:CLEAR_FILTER })
-}
+
+  // filter contact
+  const filterContacts = (text) => {
+    dispatch({type:FILTER_CONTACTS, payload:text})
+  }
+
+  // clear filter
+  const clearFilter = ()=>{
+    dispatch({ type:CLEAR_FILTER })
+  }
 
 
   return (
@@ -95,18 +135,19 @@ const clearFilter = ()=>{
        contacts: state.contacts,
        current: state.current,
        filtered: state.filtered,
+       getContacts,
        addContact,
+       clearContacts,
        deleteContact,
        setCurrent,
        clearCurrent,
        updateContact,
        filterContacts,
-       clearFilter,
-      
+       clearFilter
       }}>
       {props.children}
     </ContactContext.Provider>
-  );
-};
+  )
+}
 
 export default ContactState;

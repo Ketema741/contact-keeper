@@ -11,10 +11,8 @@ const Home = () => {
     const { loadUser } = authContext;
 
     useEffect(() => {
-        
         loadUser()
-        console.log('from loadUser()')
-
+        
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 

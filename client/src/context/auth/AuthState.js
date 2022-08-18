@@ -26,91 +26,96 @@ const AuthState = (props) => {
     const [state, dispatch] = useReducer(authReducer, initialState);
     
     
-  // Register User
-  const register = async (formData) => {
-    const config = {
-      headers:{
-        "Content-Type":'application/json'
+    // Register User
+    const register = async (formData) => {
+      const config = {
+        headers:{
+          "Content-Type":'application/json'
+        }
+      }
+
+      try {
+        const res = await axios.post ('http://localhost:5000/api/users', formData, config)
+        dispatch ({
+          type:REGISTER_SUCCESS,
+          payload:res.data
+        })
+        loadUser()
+      } catch(err) {
+        dispatch ({
+          type:REGISTER_FAIL,
+          payload:err.response.data.msg
+        })
       }
     }
 
-    try {
-      const res = await axios.post ('http://localhost:5000/api/users', formData, config)
-      dispatch ({
-        type:REGISTER_SUCCESS,
-        payload:res.data
-      })
-      loadUser()
-    } catch(err) {
-      dispatch ({
-        type:REGISTER_FAIL,
-        payload:err.response.data.msg
-      })
-    }
-
-  }
-
-  // login user
-  const login = async (formData) => {
-    const config = {
-      headers:{
-        "Content-Type":'application/json'
+    // login user
+    const login = async (formData) => {
+      const config = {
+        headers:{
+          "Content-Type":'application/json'
+        }
       }
+      try {
+        const res = await axios.post ('http://localhost:5000/api/auth', formData, config)
+        dispatch ({
+          type:LOGIN_SUCCESS,
+          payload:res.data
+        })
+        loadUser()
+      } catch(err) {
+          dispatch ({
+            type:LOGIN_FAIL,
+            payload:err.response.data.msg
+          })
+        }
     }
 
-    try {
-      const res = await axios.post ('http://localhost:5000/api/auth', formData, config)
-      
-      dispatch ({
-        type:LOGIN_SUCCESS,
-        payload:res.data
-      })
 
-
-      loadUser()
-    } catch(err) {
-      dispatch ({
-        type:LOGIN_FAIL,
-        payload:err.response.data.msg
-      })
-    }
-
-  }
-
-
-   // logout 
-   const  logout = () => dispatch({ type: LOGOUT })
+    // logout 
+    const  logout = () => dispatch({ type: LOGOUT })
 
   
 
-   // load user
-   const  loadUser = async () => {
-    if(localStorage.token) {
-      setAuthToken(localStorage.token)
-    }
-    const res = await axios.get('http://localhost:5000/api/auth')
-   
-    try {
-      dispatch ({
-        type: USER_LOADED,
-        payload: res.data
-      })
+    // load user
+    const  loadUser = async () => {
+      if(localStorage.token) {
+        setAuthToken(localStorage.token)
+      }
+      const res = await axios.get('http://localhost:5000/api/auth')
+    
+      try {
+        dispatch ({
+          type: USER_LOADED,
+          payload: res.data
+        })
 
-    } catch(error) {
-      dispatch ({
-        type: AUTH_ERROR
-      })
+      } catch(error) {
+        dispatch ({
+          type: AUTH_ERROR
+        })
+      }
     }
-   }
 
-   const clearErrors = () => dispatch({ type: CLEAR_ERRORS })
+    const clearErrors = () => dispatch({ type: CLEAR_ERRORS })
    
-   useEffect(() => {
+     // set token on initial app loading
     setAuthToken(state.token);
-  }, [state.token]);
+
+    // load user on first run or refresh
+    if (state.loading) {
+      loadUser();
+    }
+
+    // 'watch' state.token and set headers and local storage on any change
+    useEffect(() => {
+      setAuthToken(state.token);
+    }, [state.token]);
+    
+
+    // AuthState Provider Component
     return (
       <AuthContext.Provider value={{
- 
         user: state.user,
         error: state.error,
         isAuthenticated: state.isAuthenticated,
@@ -119,11 +124,10 @@ const AuthState = (props) => {
         logout,
         loadUser,
         clearErrors,
-        
       }}>
 
         {props.children}
       </AuthContext.Provider>
     )
-  }
+}
 export default AuthState;
